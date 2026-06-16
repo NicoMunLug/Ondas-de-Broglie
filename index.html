@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dualidad onda–partícula · De Broglie & Heisenberg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --bg:#0b1024;
+    --bg2:#0e1430;
+    --panel:#141b3a;
+    --panel-2:#1a2247;
+    --line:#283362;
+    --cyan:#5ce1e6;
+    --violet:#a78bfa;
+    --amber:#f5b942;
+    --red:#ff7a85;
+    --green:#52e0a0;
+    --text:#eaeefb;
+    --muted:#8a95bf;
+    --muted-2:#5f6a96;
+    --display:'Space Grotesk',sans-serif;
+    --body:'Inter',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(167,139,250,.18), transparent 60%),
+      radial-gradient(1000px 500px at 0% 0%, rgba(92,225,230,.12), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  /* ---------- HERO ---------- */
+  header.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  #waveCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.9}
+  .hero-inner{position:relative;z-index:2;padding:64px 0 72px}
+  .eyebrow{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--cyan);display:inline-block;margin-bottom:18px;
+    padding:6px 12px;border:1px solid var(--line);border-radius:100px;background:rgba(11,16,36,.5);
+  }
+  h1{
+    font-family:var(--display);font-weight:700;line-height:1.04;
+    font-size:clamp(2.1rem,6vw,3.7rem);letter-spacing:-.02em;
+    text-wrap:balance;
+  }
+  h1 .glow{color:var(--cyan)}
+  .lede{max-width:560px;margin-top:18px;color:var(--muted);font-size:1.05rem}
+
+  /* ---------- LAYOUT ---------- */
+  main{padding:48px 0 80px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:780px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    position:relative;
+    background:linear-gradient(180deg,var(--panel),var(--bg2));
+    border:1px solid var(--line);border-radius:18px;padding:26px;
+  }
+  .card h2{
+    font-family:var(--display);font-weight:600;font-size:1.18rem;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:10px;margin-bottom:4px;
+  }
+  .card h2 .tag{font-family:var(--mono);font-size:.62rem;color:var(--violet);
+    border:1px solid var(--line);padding:3px 7px;border-radius:6px;letter-spacing:.1em}
+  .card .sub{color:var(--muted);font-size:.9rem;margin-bottom:20px}
+
+  /* segmented control */
+  .seg{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:18px;gap:4px}
+  .seg button{
+    flex:1;background:transparent;border:0;color:var(--muted);font-family:var(--body);
+    font-size:.84rem;font-weight:500;padding:9px 6px;border-radius:7px;cursor:pointer;transition:.18s;
+  }
+  .seg button.active{background:var(--panel-2);color:var(--cyan);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+  .seg button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:7px;font-weight:500}
+  .field label .u{font-family:var(--mono);color:var(--muted-2);font-size:.78em}
+  .input-row{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+  .input-row input{
+    flex:1;background:transparent;border:0;color:var(--text);
+    font-family:var(--mono);font-size:1rem;padding:12px 14px;width:100%;
+  }
+  .input-row input:focus{outline:none}
+  .input-row:focus-within{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(92,225,230,.14)}
+  .unit{display:flex;align-items:center;padding:0 14px;color:var(--muted-2);font-family:var(--mono);font-size:.85rem;border-left:1px solid var(--line)}
+
+  .hidden{display:none !important}
+
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .presets button{
+    background:var(--bg);border:1px solid var(--line);color:var(--muted);
+    font-family:var(--body);font-size:.78rem;padding:7px 12px;border-radius:100px;cursor:pointer;transition:.18s;
+  }
+  .presets button:hover{border-color:var(--violet);color:var(--text)}
+  .presets button:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+
+  /* result readout */
+  .readout{margin-top:22px;padding:20px;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+  .readout .rlabel{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.16em;font-family:var(--mono)}
+  .readout .rvalue{font-family:var(--mono);font-weight:600;font-size:clamp(1.4rem,4vw,2rem);color:var(--cyan);margin-top:8px;word-break:break-word}
+  .readout .rvalue sup{font-size:.62em}
+  .readout .rextra{font-family:var(--mono);font-size:.85rem;color:var(--muted);margin-top:8px}
+
+  /* scale traffic light */
+  .scale-card .lights{display:flex;gap:12px;margin:20px 0}
+  .light{position:relative;flex:1;text-align:center;padding:16px 8px;border-radius:12px;border:1px solid var(--line);background:var(--bg);opacity:.35;transition:.25s}
+  .info-wrap{position:absolute;top:12px;right:12px;z-index:15}
+  .light .dot{width:18px;height:18px;border-radius:50%;margin:0 auto 10px;background:currentColor;box-shadow:0 0 0 0 currentColor}
+  .light .name{font-family:var(--display);font-weight:600;font-size:.92rem}
+  .light .desc{font-size:.72rem;color:var(--muted);margin-top:3px}
+  .light.micro{color:var(--green)}
+  .light.meso{color:var(--amber)}
+  .light.macro{color:var(--red)}
+  .light.on{opacity:1;border-color:currentColor}
+  .light.on .dot{box-shadow:0 0 18px 2px currentColor}
+  .verdict{font-size:.95rem;color:var(--muted);border-left:3px solid var(--cyan);padding-left:14px}
+  .verdict b{color:var(--text)}
+
+  /* comparative bar */
+  .scaleline{position:relative;height:70px;margin:26px 0 12px;border-radius:10px;
+    background:linear-gradient(90deg,rgba(82,224,160,.12),rgba(245,185,66,.10),rgba(255,122,133,.12));
+    border:1px solid var(--line)}
+  .tick{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+  .tick span{position:absolute;top:6px;left:5px;font-size:.62rem;color:var(--muted-2);white-space:nowrap;font-family:var(--mono)}
+  .tick small{position:absolute;bottom:6px;left:5px;font-size:.6rem;color:var(--muted-2);white-space:nowrap}
+  .marker{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--cyan);border-radius:3px;
+    box-shadow:0 0 14px 1px var(--cyan);transition:left .35s cubic-bezier(.2,.8,.2,1)}
+  .marker::after{content:'λ';position:absolute;top:-20px;left:50%;transform:translateX(-50%);
+    font-family:var(--mono);font-weight:600;color:var(--cyan);font-size:.85rem}
+
+  /* formulas */
+  .formulas{margin-top:48px}
+  .formulas h2{font-family:var(--display);font-size:1.5rem;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
+  .formulas .sub{color:var(--muted);margin-bottom:26px}
+  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:780px){.fgrid{grid-template-columns:1fr}}
+  .formula{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .formula .eq{font-family:var(--mono);font-size:1.45rem;color:var(--cyan);text-align:center;
+    padding:18px;background:var(--bg);border-radius:12px;margin-bottom:16px}
+  .formula .eq sub{font-size:.62em;color:var(--violet)}
+  .formula h3{font-family:var(--display);font-size:1.02rem;margin-bottom:8px}
+  .formula p{font-size:.9rem;color:var(--muted)}
+  .formula ul{list-style:none;margin-top:12px;font-size:.85rem;color:var(--muted);font-family:var(--mono)}
+  .formula ul li{padding:3px 0;display:flex;gap:8px}
+  .formula ul li b{color:var(--text);min-width:34px;display:inline-block}
+
+  footer{border-top:1px solid var(--line);padding:30px 0;color:var(--muted-2);font-size:.82rem;text-align:center}
+
+  .section-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--violet);margin-bottom:14px}
+
+  /* ---------- botón info + tooltip ---------- */
+  .info-btn{
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--bg);border:1px solid var(--line);color:var(--muted);
+    cursor:pointer;font-size:.95rem;transition:.18s;padding:0;line-height:1;
+  }
+  .info-btn:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 0 3px rgba(92,225,230,.14)}
+  .info-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .tooltip{
+    position:absolute;top:44px;right:0;width:262px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.45);
+    opacity:0;visibility:hidden;transform:translateY(-6px);transition:.18s;pointer-events:none;
+  }
+  .info-wrap:hover .tooltip,.info-btn:focus-visible + .tooltip{opacity:1;visibility:visible;transform:translateY(0)}
+  .tooltip .teq{font-family:var(--mono);color:var(--cyan);font-size:1.02rem;text-align:center;
+    background:var(--bg);border-radius:8px;padding:10px;margin-bottom:9px}
+  .tooltip p{font-size:.78rem;color:var(--muted);margin:0}
+  .tooltip::before{content:'';position:absolute;top:-7px;right:13px;width:12px;height:12px;
+    background:var(--panel-2);border-left:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}
+
+  /* ---------- modal / pop-up ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+    background:rgba(6,9,22,.74);backdrop-filter:blur(4px);padding:22px;
+    opacity:0;visibility:hidden;transition:.22s;
+  }
+  .modal-overlay.open{opacity:1;visibility:visible}
+  .modal{
+    background:linear-gradient(180deg,var(--panel),var(--bg2));
+    border:1px solid var(--line);border-radius:20px;padding:30px;max-width:480px;width:100%;
+    transform:translateY(14px) scale(.98);transition:.22s;max-height:88vh;overflow:auto;
+  }
+  .modal-overlay.open .modal{transform:translateY(0) scale(1)}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+  .modal-head h3{font-family:var(--display);font-size:1.3rem;font-weight:600;letter-spacing:-.01em}
+  .modal-close{background:var(--bg);border:1px solid var(--line);color:var(--muted);
+    width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:1.15rem;flex:none;transition:.18s;line-height:1}
+  .modal-close:hover{color:var(--red);border-color:var(--red)}
+  .modal-close:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .modal .eq{font-family:var(--mono);font-size:1.32rem;color:var(--cyan);text-align:center;
+    padding:15px;background:var(--bg);border-radius:12px;margin-bottom:10px}
+  .modal .eq sub{font-size:.62em;color:var(--violet)}
+  .modal-intro{font-size:.95rem;color:var(--text);margin-bottom:6px}
+  .modal-sub{font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--violet);margin:20px 0 10px}
+  .modal p{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+  .modal ul{list-style:none;font-size:.86rem;color:var(--muted);font-family:var(--mono)}
+  .modal ul li{padding:4px 0;display:flex;gap:10px}
+  .modal ul li b{color:var(--text);min-width:36px;display:inline-block}
+  .modal-foot{margin-top:22px;text-align:right}
+  .btn-close-foot{background:var(--cyan);color:#06131f;border:0;font-family:var(--body);font-weight:600;
+    padding:11px 22px;border-radius:10px;cursor:pointer;transition:.18s;font-size:.9rem}
+  .btn-close-foot:hover{filter:brightness(1.08)}
+  .btn-close-foot:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <canvas id="waveCanvas" aria-hidden="true"></canvas>
+  <div class="wrap hero-inner">
+    <span class="eyebrow">Física cuántica · Dualidad onda–partícula</span>
+    <h1>Toda partícula es también <span class="glow">una onda</span>.<br>Mídela.</h1>
+    <p class="lede">Calculá la longitud de onda de De Broglie y la incertidumbre mínima de Heisenberg. La onda de fondo cambia su longitud en tiempo real según los valores que ingreses.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="section-label">Calculadoras</div>
+  <div class="grid">
+
+    <!-- ============ DE BROGLIE ============ -->
+    <section class="card" aria-labelledby="db-title">
+      <div class="info-wrap">
+        <button class="info-btn" data-modal="modalDB" aria-label="Ver fórmula de De Broglie">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>
+        <div class="tooltip" role="tooltip">
+          <div class="teq">λ = h / p = h / (m·v)</div>
+          <p>Longitud de onda asociada a una partícula con momento p. Hacé clic para ver la explicación completa.</p>
+        </div>
+      </div>
+        <h2 id="db-title">Longitud de onda de De Broglie <span class="tag">λ = h/p</span></h2>
+      <p class="sub">¿Qué tan “ondulatoria” es tu partícula?</p>
+
+      <div class="seg" role="tablist" aria-label="Modo de entrada">
+        <button id="modeMV" class="active" role="tab" aria-selected="true">Masa y velocidad</button>
+        <button id="modeP" role="tab" aria-selected="false">Cantidad de movimiento</button>
+      </div>
+
+      <div id="mvFields">
+        <div class="field">
+          <label for="mass">Masa <span class="u">kg</span></label>
+          <div class="input-row">
+            <input id="mass" type="text" inputmode="decimal" value="9.109e-31" autocomplete="off">
+            <span class="unit">kg</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="vel">Velocidad <span class="u">m/s</span></label>
+          <div class="input-row">
+            <input id="vel" type="text" inputmode="decimal" value="2.2e6" autocomplete="off">
+            <span class="unit">m/s</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="pField" class="hidden">
+        <div class="field">
+          <label for="mom">Cantidad de movimiento <span class="u">p = m·v</span></label>
+          <div class="input-row">
+            <input id="mom" type="text" inputmode="decimal" value="2.0e-24" autocomplete="off">
+            <span class="unit">kg·m/s</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="presets" aria-label="Ejemplos">
+        <button data-m="9.109e-31" data-v="2.2e6">Electrón</button>
+        <button data-m="1.673e-27" data-v="2.2e7">Protón</button>
+        <button data-m="0.145" data-v="40">Pelota de béisbol</button>
+        <button data-m="70" data-v="1.4">Persona caminando</button>
+      </div>
+
+      <div class="readout">
+        <div class="rlabel">Longitud de onda λ</div>
+        <div class="rvalue" id="lambdaOut">—</div>
+        <div class="rextra" id="momOut"></div>
+      </div>
+    </section>
+
+    <!-- ============ HEISENBERG ============ -->
+    <section class="card" aria-labelledby="hb-title">
+      <div class="info-wrap">
+        <button class="info-btn" data-modal="modalHB" aria-label="Ver principio de incertidumbre">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>
+        <div class="tooltip" role="tooltip">
+          <div class="teq">Δx · Δp ≥ ℏ / 2</div>
+          <p>No se pueden conocer a la vez posición y momento con precisión arbitraria. Hacé clic para ver más.</p>
+        </div>
+      </div>
+      <h2 id="hb-title">Incertidumbre de Heisenberg <span class="tag">Δx·Δp ≥ ℏ/2</span></h2>
+      <p class="sub">Si fijás bien la posición, el momento se vuelve borroso.</p>
+
+      <div class="field">
+        <label for="dx">Incertidumbre en posición Δx <span class="u">m</span></label>
+        <div class="input-row">
+          <input id="dx" type="text" inputmode="decimal" value="1e-10" autocomplete="off">
+          <span class="unit">m</span>
+        </div>
+      </div>
+
+      <div class="presets" aria-label="Ejemplos de Δx">
+        <button data-dx="1e-10">Átomo (0.1 nm)</button>
+        <button data-dx="1e-14">Núcleo</button>
+        <button data-dx="1e-6">Célula</button>
+        <button data-dx="1e-3">Milímetro</button>
+      </div>
+
+      <div class="readout">
+        <div class="rlabel">Incertidumbre mínima Δp</div>
+        <div class="rvalue" id="dpOut">—</div>
+        <div class="rextra" id="dvOut"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ ESCALA ============ -->
+  <div class="section-label" style="margin-top:42px">Interpretación automática</div>
+  <section class="card scale-card" aria-labelledby="sc-title">
+    <h2 id="sc-title">Semáforo de escala</h2>
+    <p class="sub">Según la longitud de onda calculada arriba, ¿en qué régimen está tu partícula?</p>
+
+    <div class="lights">
+      <div class="light micro" id="lMicro">
+        <div class="dot"></div>
+        <div class="name">Microscópica</div>
+        <div class="desc">Cuántica · λ ≥ 0.1 nm</div>
+      </div>
+      <div class="light meso" id="lMeso">
+        <div class="dot"></div>
+        <div class="name">Mesoscópica</div>
+        <div class="desc">Transición</div>
+      </div>
+      <div class="light macro" id="lMacro">
+        <div class="dot"></div>
+        <div class="name">Macroscópica</div>
+        <div class="desc">Clásica · λ &lt; 1 fm</div>
+      </div>
+    </div>
+
+    <p class="verdict" id="verdict">Ingresá valores para ver la interpretación.</p>
+
+    <div class="scaleline" id="scaleline" aria-hidden="true">
+      <div class="marker" id="marker" style="left:0%"></div>
+    </div>
+  </section>
+
+  <!-- ============ MODALES DE FÓRMULAS ============ -->
+  <div class="modal-overlay" id="modalDB" role="dialog" aria-modal="true" aria-labelledby="mdb-title">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="mdb-title">Longitud de onda de De Broglie</h3>
+        <button class="modal-close" data-close aria-label="Cerrar">&times;</button>
+      </div>
+      <p class="modal-intro">En 1924 Louis de Broglie propuso que <b>toda partícula con cantidad de movimiento lleva asociada una onda</b>, no solo la luz. Así nace la dualidad onda–partícula: cuanto mayor es el momento (más masa o más velocidad), más corta es su longitud de onda.</p>
+
+      <div class="modal-sub">Fórmulas que usa esta calculadora</div>
+      <div class="eq">p = m · v</div>
+      <div class="eq">λ = h / p = h / (m · v)</div>
+      <p>Si elegís el modo “Cantidad de movimiento”, la app se salta el primer paso y aplica directamente <i>λ = h / p</i>.</p>
+
+      <div class="modal-sub">Variables y constantes</div>
+      <ul>
+        <li><b>λ</b> longitud de onda asociada (m)</li>
+        <li><b>p</b> cantidad de movimiento (kg·m/s)</li>
+        <li><b>m</b> masa de la partícula (kg)</li>
+        <li><b>v</b> velocidad (m/s)</li>
+        <li><b>h</b> constante de Planck = 6.62607015 × 10⁻³⁴ J·s</li>
+      </ul>
+
+      <div class="modal-sub">Cómo se interpreta el resultado</div>
+      <p>Si <i>λ</i> es comparable o mayor al tamaño del objeto (≈ escala atómica, 10⁻¹⁰ m), los efectos cuánticos como la difracción son observables: escala <b>microscópica</b>. Si <i>λ</i> es muchísimo menor que cualquier objeto medible, la onda es despreciable y el cuerpo se comporta de forma clásica: escala <b>macroscópica</b>.</p>
+
+      <div class="modal-foot"><button class="btn-close-foot" data-close>Cerrar</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalHB" role="dialog" aria-modal="true" aria-labelledby="mhb-title">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="mhb-title">Principio de incertidumbre de Heisenberg</h3>
+        <button class="modal-close" data-close aria-label="Cerrar">&times;</button>
+      </div>
+      <p class="modal-intro">Werner Heisenberg (1927) demostró que <b>no se puede conocer a la vez, con precisión arbitraria, la posición y la cantidad de movimiento</b> de una partícula. No es una limitación de los instrumentos: es una propiedad fundamental de la naturaleza cuántica.</p>
+
+      <div class="modal-sub">Fórmulas que usa esta calculadora</div>
+      <div class="eq">Δx · Δp ≥ ℏ / 2</div>
+      <div class="eq">Δp<sub>mín</sub> = ℏ / (2 · Δx)</div>
+      <p>Cuanto más chico hacés Δx (más certeza en la posición), mayor es la incertidumbre mínima del momento Δp. Como referencia tangible, la app convierte ese Δp en velocidad para un electrón con <i>Δv = Δp / mₑ</i>.</p>
+
+      <div class="modal-sub">Variables y constantes</div>
+      <ul>
+        <li><b>Δx</b> incertidumbre de la posición (m)</li>
+        <li><b>Δp</b> incertidumbre del momento (kg·m/s)</li>
+        <li><b>ℏ</b> h/2π = 1.054571817 × 10⁻³⁴ J·s</li>
+        <li><b>mₑ</b> masa del electrón = 9.109 × 10⁻³¹ kg</li>
+      </ul>
+
+      <div class="modal-foot"><button class="btn-close-foot" data-close>Cerrar</button></div>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap">
+  Calculadora educativa de dualidad onda–partícula · Constantes CODATA · Hecha con HTML, CSS y JavaScript.
+</footer>
+
+<script>
+const H = 6.62607015e-34;      // Planck (J·s)
+const HBAR = 1.054571817e-34;  // h/2π (J·s)
+
+/* ---------- utilidades ---------- */
+const $ = id => document.getElementById(id);
+const parseNum = s => {
+  if(typeof s !== 'string') return NaN;
+  const v = parseFloat(s.trim().replace(',', '.'));
+  return v;
+};
+
+// Notación científica con superíndice HTML. Ej: 3.31 × 10⁻¹⁰
+function sci(x, unit){
+  if(!isFinite(x) || x === 0) return '0 ' + (unit||'');
+  const exp = Math.floor(Math.log10(Math.abs(x)));
+  const mant = x / Math.pow(10, exp);
+  const m = mant.toFixed(3).replace(/\.?0+$/,'');
+  if(exp === 0) return `${m} ${unit||''}`.trim();
+  return `${m} × 10<sup>${exp}</sup> ${unit||''}`.trim();
+}
+
+/* ---------- estado compartido ---------- */
+let currentLambda = NaN; // para alimentar onda + semáforo
+
+/* ---------- DE BROGLIE ---------- */
+let mode = 'mv';
+function computeDeBroglie(){
+  let p;
+  if(mode === 'mv'){
+    const m = parseNum($('mass').value);
+    const v = parseNum($('vel').value);
+    p = m * v;
+    if(isFinite(p) && p !== 0){
+      $('momOut').innerHTML = 'p = m·v = ' + sci(p, 'kg·m/s');
+    } else { $('momOut').textContent=''; }
+  } else {
+    p = parseNum($('mom').value);
+    $('momOut').textContent = '';
+  }
+
+  if(!isFinite(p) || p === 0){
+    $('lambdaOut').textContent = '—';
+    currentLambda = NaN;
+    updateScale();
+    return;
+  }
+  const lambda = H / Math.abs(p);
+  currentLambda = lambda;
+  $('lambdaOut').innerHTML = sci(lambda, 'm');
+  updateScale();
+}
+
+/* ---------- HEISENBERG ---------- */
+function computeHeisenberg(){
+  const dx = parseNum($('dx').value);
+  if(!isFinite(dx) || dx <= 0){
+    $('dpOut').textContent = '—';
+    $('dvOut').textContent = '';
+    return;
+  }
+  const dp = HBAR / (2 * dx);
+  $('dpOut').innerHTML = sci(dp, 'kg·m/s');
+  // velocidad mínima si fuera un electrón, como referencia tangible
+  const me = 9.109e-31;
+  const dv = dp / me;
+  $('dvOut').innerHTML = 'Para un electrón: Δv ≥ ' + sci(dv, 'm/s');
+}
+
+/* ---------- SEMÁFORO + BARRA ---------- */
+function updateScale(){
+  const lights = {micro:$('lMicro'), meso:$('lMeso'), macro:$('lMacro')};
+  Object.values(lights).forEach(l=>l.classList.remove('on'));
+  const v = $('verdict');
+
+  if(!isFinite(currentLambda)){
+    v.innerHTML = 'Ingresá valores para ver la interpretación.';
+    return;
+  }
+  const L = currentLambda;
+  let zone, msg;
+  if(L >= 1e-10){
+    zone='micro';
+    msg = `Con <b>λ = ${sci(L,'m')}</b>, la longitud de onda es comparable o mayor al tamaño de átomos y moléculas. Los efectos cuánticos (difracción, interferencia) son <b>observables</b>: estás en la escala <b>microscópica</b>.`;
+  } else if(L >= 1e-15){
+    zone='meso';
+    msg = `Con <b>λ = ${sci(L,'m')}</b>, la onda es diminuta pero no del todo despreciable. Es una <b>zona de transición (mesoscópica)</b> entre lo cuántico y lo clásico.`;
+  } else {
+    zone='macro';
+    msg = `Con <b>λ = ${sci(L,'m')}</b>, la longitud de onda es mucho menor que cualquier objeto medible (un protón mide ~10⁻¹⁵ m). La onda es <b>despreciable</b> y el objeto se comporta de forma <b>clásica / macroscópica</b>.`;
+  }
+  lights[zone].classList.add('on');
+  v.innerHTML = msg;
+  placeMarker(L);
+}
+
+/* barra logarítmica de tamaños de referencia (en metros) */
+const refs = [
+  {m:1e-15,label:'protón',exp:'10⁻¹⁵'},
+  {m:1e-10,label:'átomo',exp:'10⁻¹⁰'},
+  {m:1e-7,label:'virus',exp:'10⁻⁷'},
+  {m:1e-4,label:'cabello',exp:'10⁻⁴'},
+  {m:1e0,label:'humano',exp:'10⁰'},
+];
+const LOG_MIN = -36, LOG_MAX = 2;
+function logPct(meters){
+  const lg = Math.log10(meters);
+  let pct = (lg - LOG_MIN) / (LOG_MAX - LOG_MIN) * 100;
+  return Math.max(1, Math.min(99, pct));
+}
+function buildScaleLine(){
+  const line = $('scaleline');
+  refs.forEach(r=>{
+    const t = document.createElement('div');
+    t.className='tick';
+    t.style.left = logPct(r.m) + '%';
+    t.innerHTML = `<span>${r.label}</span><small>${r.exp} m</small>`;
+    line.appendChild(t);
+  });
+}
+function placeMarker(L){
+  $('marker').style.left = logPct(L) + '%';
+}
+
+/* ---------- ONDA ANIMADA (canvas) ---------- */
+const canvas = $('waveCanvas');
+const ctx = canvas.getContext('2d');
+let W, Hgt, phase = 0;
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function resize(){
+  const r = canvas.parentElement.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = r.width; Hgt = r.height;
+  canvas.width = W*dpr; canvas.height = Hgt*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize', resize);
+
+// mapea λ real (log) a píxeles por ciclo para que sea visible en cualquier escala
+function pixelWavelength(){
+  if(!isFinite(currentLambda)) return 120;
+  const lg = Math.log10(currentLambda); // ~ -36 .. 0
+  // -34 (clásico) -> 22px tight ; -9 (electrón) -> 260px ancho
+  const t = (lg + 34) / (25);       // 0 .. ~1
+  const px = 22 + Math.max(0, Math.min(1, t)) * 280;
+  return px;
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,Hgt);
+  const pxLambda = pixelWavelength();
+  const k = (2*Math.PI)/pxLambda;
+  const midY = Hgt*0.5;
+  const amp = Math.min(Hgt*0.26, 90);
+
+  // dos ondas superpuestas para sensación de paquete
+  const draws = [
+    {color:'rgba(92,225,230,0.55)', off:0, a:amp},
+    {color:'rgba(167,139,250,0.30)', off:Math.PI/2, a:amp*0.6}
+  ];
+  draws.forEach(d=>{
+    ctx.beginPath();
+    for(let x=0; x<=W; x+=2){
+      const y = midY + d.a * Math.sin(k*x - phase + d.off) * Math.exp(-Math.pow((x-W/2)/(W*0.65),2));
+      x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = d.color;
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+  });
+
+  if(!reduce) phase += 0.045;
+  requestAnimationFrame(draw);
+}
+
+/* ---------- eventos ---------- */
+$('modeMV').addEventListener('click', ()=>{
+  mode='mv';
+  $('modeMV').classList.add('active'); $('modeP').classList.remove('active');
+  $('modeMV').setAttribute('aria-selected','true'); $('modeP').setAttribute('aria-selected','false');
+  $('mvFields').classList.remove('hidden'); $('pField').classList.add('hidden');
+  computeDeBroglie();
+});
+$('modeP').addEventListener('click', ()=>{
+  mode='p';
+  $('modeP').classList.add('active'); $('modeMV').classList.remove('active');
+  $('modeP').setAttribute('aria-selected','true'); $('modeMV').setAttribute('aria-selected','false');
+  $('pField').classList.remove('hidden'); $('mvFields').classList.add('hidden');
+  computeDeBroglie();
+});
+
+['mass','vel','mom'].forEach(id=>$(id).addEventListener('input', computeDeBroglie));
+$('dx').addEventListener('input', computeHeisenberg);
+
+document.querySelectorAll('.presets button[data-m]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    mode='mv';
+    $('modeMV').click();
+    $('mass').value = b.dataset.m;
+    $('vel').value = b.dataset.v;
+    computeDeBroglie();
+  });
+});
+document.querySelectorAll('.presets button[data-dx]').forEach(b=>{
+  b.addEventListener('click', ()=>{ $('dx').value = b.dataset.dx; computeHeisenberg(); });
+});
+
+/* ---------- modales de fórmulas ---------- */
+let lastFocus = null;
+function openModal(id){
+  const m = $(id); if(!m) return;
+  lastFocus = document.activeElement;
+  m.classList.add('open');
+  m.querySelector('.modal-close').focus();
+}
+function closeModals(){
+  document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
+  if(lastFocus) lastFocus.focus();
+}
+document.querySelectorAll('.info-btn').forEach(b=>
+  b.addEventListener('click', ()=>openModal(b.dataset.modal)));
+document.querySelectorAll('[data-close]').forEach(b=>
+  b.addEventListener('click', closeModals));
+document.querySelectorAll('.modal-overlay').forEach(o=>
+  o.addEventListener('click', e=>{ if(e.target===o) closeModals(); }));
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModals(); });
+
+/* ---------- init ---------- */
+resize();
+buildScaleLine();
+computeDeBroglie();
+computeHeisenberg();
+draw();
+</script>
+</body>
+</html>
